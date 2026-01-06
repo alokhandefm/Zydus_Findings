@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # --------------------------------------------------
-# LOAD AVAILABLE CSV FILES FROM DATA FOLDER
+# DATA FILES
 # --------------------------------------------------
 DATA_FOLDER = "data"
 
@@ -22,17 +22,16 @@ csv_files = sorted(
 )
 
 # --------------------------------------------------
-# SIDEBAR: DATA SELECTION
+# SIDEBAR
 # --------------------------------------------------
 st.sidebar.title("Trial Date Selection")
-
 selected_file = st.sidebar.selectbox(
     "Select Trial Data",
     csv_files
 )
 
 # --------------------------------------------------
-# LOAD SELECTED CSV
+# LOAD DATA
 # --------------------------------------------------
 df = pd.read_csv(os.path.join(DATA_FOLDER, selected_file))
 df["Timestamp"] = pd.to_datetime(df["Timestamp"])
@@ -42,20 +41,20 @@ min_date = df["Timestamp"].min().strftime("%Y-%m-%d %H:%M")
 max_date = df["Timestamp"].max().strftime("%Y-%m-%d %H:%M")
 
 # --------------------------------------------------
-# TITLE
+# MAIN TITLE (WHITE TEXT FOR STREAMLIT DARK BG)
 # --------------------------------------------------
 st.markdown(
     f"""
-    <h2 style='text-align:center; color:black;'>
+    <h2 style="text-align:center; color:white;">
         Zydus LifeSciences, Ahmedabad. ({min_date} to {max_date})<br>
-        <span style='font-size:16px;'>Customer Trial Data</span>
+        <span style="font-size:16px;">Customer Trial Data</span>
     </h2>
     """,
     unsafe_allow_html=True
 )
 
 # --------------------------------------------------
-# CREATE PLOTLY SUBPLOTS
+# CREATE FIGURE
 # --------------------------------------------------
 fig = make_subplots(
     rows=4,
@@ -65,9 +64,9 @@ fig = make_subplots(
     row_heights=[0.25, 0.25, 0.25, 0.25]
 )
 
-# ==================================================
+# =========================
 # ROW 1: TEMPERATURE
-# ==================================================
+# =========================
 fig.add_trace(
     go.Scatter(
         x=df["Timestamp"],
@@ -88,11 +87,16 @@ fig.add_trace(
     row=1, col=1
 )
 
-fig.update_yaxes(title_text="Temp (°C)", row=1, col=1)
+fig.update_yaxes(
+    title_text="Temp (°C)",
+    title_font=dict(color="black"),
+    tickfont=dict(color="black"),
+    row=1, col=1
+)
 
-# ==================================================
+# =========================
 # ROW 2: PRESSURE
-# ==================================================
+# =========================
 fig.add_trace(
     go.Scatter(
         x=df["Timestamp"],
@@ -125,11 +129,16 @@ fig.add_trace(
     row=2, col=1
 )
 
-fig.update_yaxes(title_text="Bar", row=2, col=1)
+fig.update_yaxes(
+    title_text="Bar",
+    title_font=dict(color="black"),
+    tickfont=dict(color="black"),
+    row=2, col=1
+)
 
-# ==================================================
-# ROW 3: STEAM FLOW RATE
-# ==================================================
+# =========================
+# ROW 3: FLOW RATE
+# =========================
 fig.add_trace(
     go.Scatter(
         x=df["Timestamp"],
@@ -142,11 +151,16 @@ fig.add_trace(
     row=3, col=1
 )
 
-fig.update_yaxes(title_text="kg/hr", row=3, col=1)
+fig.update_yaxes(
+    title_text="kg/hr",
+    title_font=dict(color="black"),
+    tickfont=dict(color="black"),
+    row=3, col=1
+)
 
-# ==================================================
+# =========================
 # ROW 4: VALVE OPENING
-# ==================================================
+# =========================
 fig.add_trace(
     go.Scatter(
         x=df["Timestamp"],
@@ -162,11 +176,19 @@ fig.add_trace(
 fig.update_yaxes(
     title_text="%",
     range=[0, 105],
+    title_font=dict(color="black"),
+    tickfont=dict(color="black"),
     row=4, col=1
 )
 
+fig.update_xaxes(
+    title_text="Timestamp",
+    title_font=dict(color="black"),
+    tickfont=dict(color="black")
+)
+
 # --------------------------------------------------
-# LAYOUT STYLING
+# GLOBAL LAYOUT (FORCE VISIBILITY)
 # --------------------------------------------------
 fig.update_layout(
     height=900,
@@ -179,7 +201,8 @@ fig.update_layout(
         yanchor="bottom",
         y=1.02,
         xanchor="right",
-        x=1
+        x=1,
+        font=dict(color="black")
     )
 )
 
@@ -187,7 +210,7 @@ fig.update_xaxes(showgrid=True, gridcolor="#f0f0f0")
 fig.update_yaxes(showgrid=True, gridcolor="#f0f0f0")
 
 # --------------------------------------------------
-# DISPLAY PLOT
+# RENDER
 # --------------------------------------------------
 st.plotly_chart(fig, use_container_width=True)
 
