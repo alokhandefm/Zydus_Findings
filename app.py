@@ -2,47 +2,39 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import os
 
 # --------------------------------------------------
-# CONFIG
+# STREAMLIT CONFIG
 # --------------------------------------------------
 st.set_page_config(
     page_title="QualSteam Dashboard",
     layout="wide"
 )
 
-GITHUB_RAW_BASE = (
-    "https://raw.githubusercontent.com/"
-    "<YOUR_USERNAME>/<YOUR_REPO_NAME>/main/data/"
+# --------------------------------------------------
+# LOAD AVAILABLE CSV FILES FROM DATA FOLDER
+# --------------------------------------------------
+DATA_FOLDER = "data"
+
+csv_files = sorted(
+    [f for f in os.listdir(DATA_FOLDER) if f.endswith(".csv")]
 )
 
-AVAILABLE_FILES = [
-    "01-11_clean.csv",
-    "15-11_clean.csv",
-    "17-11_clean.csv",
-    "20-11_clean.csv",
-    "21-11_clean.csv",
-    "31-10_clean.csv",
-    "30-10_clean.csv",
-    "30-10_1_clean.csv",
-]
-
 # --------------------------------------------------
-# SIDEBAR
+# SIDEBAR: DATA SELECTION
 # --------------------------------------------------
-st.sidebar.title("Data Selection")
+st.sidebar.title("Trial Date Selection")
 
 selected_file = st.sidebar.selectbox(
-    "Select Dataset",
-    AVAILABLE_FILES
+    "Select Trial Data",
+    csv_files
 )
 
-file_url = GITHUB_RAW_BASE + selected_file
-
 # --------------------------------------------------
-# LOAD DATA
+# LOAD SELECTED CSV
 # --------------------------------------------------
-df = pd.read_csv(file_url)
+df = pd.read_csv(os.path.join(DATA_FOLDER, selected_file))
 df["Timestamp"] = pd.to_datetime(df["Timestamp"])
 df = df.sort_values("Timestamp")
 
@@ -63,7 +55,7 @@ st.markdown(
 )
 
 # --------------------------------------------------
-# PLOTLY FIGURE
+# CREATE PLOTLY SUBPLOTS
 # --------------------------------------------------
 fig = make_subplots(
     rows=4,
@@ -73,9 +65,9 @@ fig = make_subplots(
     row_heights=[0.25, 0.25, 0.25, 0.25]
 )
 
-# =========================
+# ==================================================
 # ROW 1: TEMPERATURE
-# =========================
+# ==================================================
 fig.add_trace(
     go.Scatter(
         x=df["Timestamp"],
@@ -98,9 +90,9 @@ fig.add_trace(
 
 fig.update_yaxes(title_text="Temp (°C)", row=1, col=1)
 
-# =========================
+# ==================================================
 # ROW 2: PRESSURE
-# =========================
+# ==================================================
 fig.add_trace(
     go.Scatter(
         x=df["Timestamp"],
@@ -135,9 +127,9 @@ fig.add_trace(
 
 fig.update_yaxes(title_text="Bar", row=2, col=1)
 
-# =========================
-# ROW 3: FLOW RATE
-# =========================
+# ==================================================
+# ROW 3: STEAM FLOW RATE
+# ==================================================
 fig.add_trace(
     go.Scatter(
         x=df["Timestamp"],
@@ -152,9 +144,9 @@ fig.add_trace(
 
 fig.update_yaxes(title_text="kg/hr", row=3, col=1)
 
-# =========================
+# ==================================================
 # ROW 4: VALVE OPENING
-# =========================
+# ==================================================
 fig.add_trace(
     go.Scatter(
         x=df["Timestamp"],
@@ -174,7 +166,7 @@ fig.update_yaxes(
 )
 
 # --------------------------------------------------
-# LAYOUT
+# LAYOUT STYLING
 # --------------------------------------------------
 fig.update_layout(
     height=900,
@@ -195,6 +187,7 @@ fig.update_xaxes(showgrid=True, gridcolor="#f0f0f0")
 fig.update_yaxes(showgrid=True, gridcolor="#f0f0f0")
 
 # --------------------------------------------------
-# RENDER
+# DISPLAY PLOT
 # --------------------------------------------------
 st.plotly_chart(fig, use_container_width=True)
+
